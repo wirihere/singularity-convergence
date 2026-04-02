@@ -1333,7 +1333,12 @@
       div.textContent = text;
     }
     chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Scroll to the TOP of the new message so user reads from the beginning
+    if (role === 'assistant') {
+      div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
   }
 
   function updateRemainingCounter(remaining) {
