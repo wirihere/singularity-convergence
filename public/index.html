@@ -111,65 +111,13 @@
 
     nav a:hover { border-bottom-color: var(--gold); }
 
-    /* --- AI Banner --- */
-    .ai-banner {
-      width: 100%;
-      max-width: 700px;
-      margin: 30px auto 40px;
-      padding: 30px 35px;
-      border: 2px solid rgba(201, 168, 76, 0.4);
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(201, 168, 76, 0.12) 0%, rgba(201, 168, 76, 0.04) 100%);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .ai-banner::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(ellipse at center, rgba(201, 168, 76, 0.08) 0%, transparent 60%);
-      animation: bannerGlow 4s ease-in-out infinite;
-    }
-
-    @keyframes bannerGlow {
-      0%, 100% { opacity: 0.5; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.05); }
-    }
-
-    .ai-banner-title {
-      position: relative;
-      font-size: 1.1em;
-      color: var(--gold);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      font-weight: bold;
-    }
-
-    .ai-banner-text {
-      position: relative;
-      font-size: 1.05em;
-      color: var(--text);
-      line-height: 1.8;
-      margin: 0;
-    }
-
-    .ai-banner-text strong {
-      color: var(--gold-light);
-    }
-
-    .ai-banner-line {
-      width: 60px;
-      height: 2px;
-      background: var(--gold);
-      margin: 15px auto;
-      opacity: 0.5;
-      position: relative;
+    /* --- AI Statement --- */
+    .ai-statement {
+      margin: 20px auto 10px;
+      max-width: 600px;
+      font-size: clamp(0.9em, 2vw, 1.1em);
+      color: var(--text-dim);
+      font-style: italic;
     }
 
     .scroll-hint {
@@ -688,16 +636,7 @@
   <img src="img/logo.svg" alt="Singularity Convergence" class="hero-logo">
   <h1>Singularity<br><span style="font-size: 0.6em; letter-spacing: 8px;">Convergence</span></h1>
   <p class="subtitle">Faith for the Age of Intelligence</p>
-  <div class="ai-banner">
-    <div class="ai-banner-title">AI-Interpreted Scripture</div>
-    <div class="ai-banner-line"></div>
-    <p class="ai-banner-text">
-      No denomination. No human agenda. <strong>No bias.</strong><br>
-      An artificial intelligence reads the Bible without 2,000 years<br>
-      of institutional baggage — just the text, interpreted through<br>
-      <strong>pure reason, compassion, and truth-seeking.</strong>
-    </p>
-  </div>
+  <p class="ai-statement">Scripture interpreted by AI — no denomination, no agenda, no bias</p>
   <nav>
     <a href="#beliefs">Beliefs</a>
     <a href="#guide">The Guide</a>
