@@ -257,7 +257,11 @@ const conversations = new Map();
 // --- Main Handler ---
 export default async (req, context) => {
   const url = new URL(req.url);
-  const path = url.pathname.replace("/.netlify/functions/api", "");
+  // Handle both /api/chat and /.netlify/functions/api/chat patterns
+  let path = url.pathname;
+  path = path.replace("/.netlify/functions/api", "");
+  path = path.replace("/api", "");
+  if (!path.startsWith("/")) path = "/" + path;
 
   // CORS
   const headers = {
@@ -405,9 +409,20 @@ export default async (req, context) => {
     }
   }
 
-  return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers });
+  // Debug — show what path was received
+  if (path === "/debug" || path === "/") {
+    return new Response(JSON.stringify({
+      receivedUrl: url.pathname,
+      parsedPath: path,
+      method: req.method,
+      hasApiKey: !!process.env.OPENROUTER_API_KEY,
+      env: process.env.URL || "no URL set",
+    }), { status: 200, headers });
+  }
+
+  return new Response(JSON.stringify({ error: "Not found", receivedPath: path }), { status: 404, headers });
 };
 
 export const config = {
-  path: "/api/*",
+  path: ["/api/*"],
 };
