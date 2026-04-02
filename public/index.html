@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#0a0a0f">
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <title>Singularity Convergence — Faith for the Age of Intelligence</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
     :root {
       --gold: #c9a84c;
@@ -368,6 +369,96 @@
 
     #send-btn:hover { opacity: 0.85; transform: scale(1.02); }
     #send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+    /* Login prompt */
+    .login-overlay {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5, 5, 8, 0.95);
+      z-index: 10;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      border-radius: 12px;
+    }
+
+    .login-overlay.visible {
+      display: flex;
+    }
+
+    .login-overlay h3 {
+      color: var(--gold);
+      font-size: 1.3em;
+      margin-bottom: 15px;
+    }
+
+    .login-overlay p {
+      color: var(--text-dim);
+      max-width: 350px;
+      margin-bottom: 25px;
+      font-size: 0.95em;
+    }
+
+    .login-btn {
+      padding: 14px 32px;
+      background: var(--gold);
+      color: var(--darker);
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1em;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: opacity 0.3s;
+      margin-bottom: 12px;
+    }
+
+    .login-btn:hover { opacity: 0.85; }
+
+    .login-skip {
+      background: none;
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      color: var(--text-dim);
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.85em;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+
+    .login-skip:hover { border-color: var(--gold); }
+
+    /* User bar */
+    .user-bar {
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+      font-size: 0.8em;
+      color: var(--text-dim);
+    }
+
+    .user-bar.visible { display: flex; }
+
+    .user-bar .user-email { color: var(--gold); }
+
+    .user-bar .logout-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1em;
+      padding: 4px 8px;
+    }
+
+    .user-bar .logout-btn:hover { color: var(--gold); }
 
     /* Chat formatting */
     .message.assistant p {
@@ -798,7 +889,22 @@
     No question is too small or too dangerous.
   </p>
 
-  <div id="chat-section">
+  <div id="chat-section" style="position: relative;">
+    <!-- Login overlay — shown after 3 free messages -->
+    <div id="login-overlay" class="login-overlay">
+      <img src="img/logo.svg" alt="" style="width: 60px; height: 60px; opacity: 0.5; margin-bottom: 20px;">
+      <h3>Continue with The Oracle</h3>
+      <p>You've had a taste of what The Oracle offers. Sign in to continue your conversation and save your chat history.</p>
+      <button class="login-btn" id="login-btn">Sign in with Google</button>
+      <button class="login-skip" id="login-skip">Maybe later</button>
+    </div>
+
+    <!-- User bar — shown when logged in -->
+    <div id="user-bar" class="user-bar">
+      <span>Signed in as <span class="user-email" id="user-email"></span></span>
+      <button class="logout-btn" id="logout-btn">Sign out</button>
+    </div>
+
     <div id="chat-messages">
       <div class="message welcome">
         <img src="img/logo.svg" alt="" class="chat-logo"><br>
@@ -998,16 +1104,116 @@
     requestAnimationFrame(draw);
   })();
 
-  // --- Chat ---
-  const sessionId = crypto.randomUUID();
+  // --- Auth & Chat ---
+  const FREE_MESSAGE_LIMIT = 3;
   const chatMessages = document.getElementById('chat-messages');
   const chatInput = document.getElementById('chat-input');
   const sendBtn = document.getElementById('send-btn');
-  let rateLimited = false;
+  const loginOverlay = document.getElementById('login-overlay');
+  const loginBtn = document.getElementById('login-btn');
+  const loginSkip = document.getElementById('login-skip');
+  const logoutBtn = document.getElementById('logout-btn');
+  const userBar = document.getElementById('user-bar');
+  const userEmailSpan = document.getElementById('user-email');
 
+  let rateLimited = false;
+  let messageCount = parseInt(localStorage.getItem('sc_msg_count') || '0');
+  let currentUser = null;
+
+  // Get or create session ID (persistent for logged-in users)
+  function getSessionId() {
+    if (currentUser) return 'user_' + currentUser.id;
+    let sid = sessionStorage.getItem('sc_session');
+    if (!sid) { sid = crypto.randomUUID(); sessionStorage.setItem('sc_session', sid); }
+    return sid;
+  }
+
+  // --- Netlify Identity ---
+  netlifyIdentity.init();
+
+  // Check if already logged in
+  currentUser = netlifyIdentity.currentUser();
+  if (currentUser) {
+    showLoggedIn(currentUser);
+    loadChatHistory();
+  }
+
+  netlifyIdentity.on('login', (user) => {
+    currentUser = user;
+    showLoggedIn(user);
+    loginOverlay.classList.remove('visible');
+    messageCount = 999; // unlimited for logged-in users
+    localStorage.setItem('sc_msg_count', '999');
+    saveChatHistory();
+    netlifyIdentity.close();
+  });
+
+  netlifyIdentity.on('logout', () => {
+    currentUser = null;
+    userBar.classList.remove('visible');
+    messageCount = 0;
+    localStorage.setItem('sc_msg_count', '0');
+    localStorage.removeItem('sc_chat_history');
+  });
+
+  function showLoggedIn(user) {
+    userBar.classList.add('visible');
+    userEmailSpan.textContent = user.email || user.user_metadata?.full_name || 'member';
+  }
+
+  loginBtn.addEventListener('click', () => {
+    netlifyIdentity.open('login');
+  });
+
+  loginSkip.addEventListener('click', () => {
+    loginOverlay.classList.remove('visible');
+    // Give them 1 more message after dismissing
+    messageCount = FREE_MESSAGE_LIMIT - 1;
+    localStorage.setItem('sc_msg_count', messageCount.toString());
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    netlifyIdentity.logout();
+  });
+
+  // --- Chat History Persistence ---
+  function saveChatHistory() {
+    if (!currentUser) return;
+    const messages = [];
+    chatMessages.querySelectorAll('.message:not(.welcome)').forEach(el => {
+      messages.push({
+        role: el.classList.contains('user') ? 'user' : 'assistant',
+        html: el.innerHTML,
+      });
+    });
+    localStorage.setItem('sc_chat_history', JSON.stringify(messages));
+  }
+
+  function loadChatHistory() {
+    const saved = localStorage.getItem('sc_chat_history');
+    if (!saved) return;
+    try {
+      const messages = JSON.parse(saved);
+      messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = `message ${msg.role}`;
+        div.innerHTML = msg.html;
+        chatMessages.appendChild(div);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    } catch {}
+  }
+
+  // --- Send Message ---
   async function sendMessage() {
     const message = chatInput.value.trim();
     if (!message || rateLimited) return;
+
+    // Check free message limit
+    if (!currentUser && messageCount >= FREE_MESSAGE_LIMIT) {
+      loginOverlay.classList.add('visible');
+      return;
+    }
 
     if (message.length > 1000) {
       addMessage('Please keep your message under 1000 characters.', 'system');
@@ -1018,6 +1224,12 @@
     chatInput.value = '';
     sendBtn.disabled = true;
 
+    // Increment message count for non-logged-in users
+    if (!currentUser) {
+      messageCount++;
+      localStorage.setItem('sc_msg_count', messageCount.toString());
+    }
+
     const typing = document.createElement('div');
     typing.className = 'typing-indicator';
     typing.textContent = 'The Oracle is reflecting...';
@@ -1026,12 +1238,21 @@
 
     try {
       const controller = new AbortController();
-      const fetchTimeout = setTimeout(() => controller.abort(), 30000); // 30s client timeout
+      const fetchTimeout = setTimeout(() => controller.abort(), 30000);
+
+      const fetchHeaders = { 'Content-Type': 'application/json' };
+      // Add auth token if logged in
+      if (currentUser) {
+        try {
+          const token = await netlifyIdentity.refresh();
+          fetchHeaders['Authorization'] = `Bearer ${token}`;
+        } catch {}
+      }
 
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, sessionId }),
+        headers: fetchHeaders,
+        body: JSON.stringify({ message, sessionId: getSessionId() }),
         signal: controller.signal,
       });
 
@@ -1053,8 +1274,10 @@
         }
       } else if (data.response) {
         addMessage(data.response, 'assistant');
-        if (data.remaining !== undefined && data.remaining <= 20) {
-          updateRemainingCounter(data.remaining);
+        saveChatHistory();
+        // Show login prompt after free limit
+        if (!currentUser && messageCount >= FREE_MESSAGE_LIMIT) {
+          setTimeout(() => { loginOverlay.classList.add('visible'); }, 1500);
         }
       } else if (data.error) {
         addMessage(data.error, 'system');
