@@ -58,8 +58,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(ellipse at 50% 30%, rgba(201, 168, 76, 0.06) 0%, transparent 60%),
-                  linear-gradient(180deg, var(--darker) 0%, var(--dark) 100%);
+      background: transparent;
     }
 
     .hero-logo {
@@ -208,8 +207,9 @@
       margin: 30px 0;
       color: var(--text-dim);
       font-style: italic;
-      background: rgba(201, 168, 76, 0.03);
+      background: rgba(5, 5, 8, 0.6);
       border-radius: 0 6px 6px 0;
+      backdrop-filter: blur(4px);
     }
 
     /* --- Full-Width Visual Sections --- */
@@ -222,8 +222,7 @@
     }
 
     .visual-cross {
-      background: radial-gradient(ellipse at 50% 50%, rgba(201, 168, 76, 0.04) 0%, transparent 50%),
-                  var(--darker);
+      background: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -235,17 +234,20 @@
     .visual-cross img {
       width: 200px;
       height: auto;
-      opacity: 0.7;
-      filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.2));
+      opacity: 0.8;
+      filter: drop-shadow(0 0 30px rgba(201, 168, 76, 0.3));
     }
 
     .visual-cross .visual-text {
       max-width: 400px;
       text-align: left;
+      background: radial-gradient(ellipse at center, rgba(5, 5, 8, 0.8) 0%, transparent 70%);
+      padding: 30px;
+      border-radius: 12px;
     }
 
     .visual-tree {
-      background: linear-gradient(180deg, var(--dark) 0%, var(--darker) 50%, var(--dark) 100%);
+      background: transparent;
       padding: 60px 20px;
     }
 
@@ -282,9 +284,10 @@
     .belief {
       margin-bottom: 30px;
       padding: 30px;
-      border: 1px solid rgba(201, 168, 76, 0.08);
+      border: 1px solid rgba(201, 168, 76, 0.1);
       border-radius: 8px;
-      background: rgba(201, 168, 76, 0.02);
+      background: rgba(5, 5, 8, 0.7);
+      backdrop-filter: blur(4px);
       transition: border-color 0.3s, background 0.3s;
     }
 
