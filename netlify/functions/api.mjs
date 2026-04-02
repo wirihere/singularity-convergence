@@ -182,14 +182,13 @@ function extractBibleReferences(message) {
 
 // --- Free Model Router ---
 const KNOWN_FREE_MODELS = {
-  "google/gemini-2.5-pro-exp-03-25:free":         { quality: 95 },
-  "deepseek/deepseek-chat-v3-0324:free":           { quality: 88 },
-  "qwen/qwen3-235b-a22b:free":                    { quality: 86 },
+  "google/gemini-2.0-flash-exp:free":              { quality: 90 },
   "meta-llama/llama-4-maverick:free":              { quality: 85 },
+  "deepseek/deepseek-chat-v3-0324:free":           { quality: 88 },
   "meta-llama/llama-4-scout:free":                 { quality: 80 },
+  "qwen/qwen3-235b-a22b:free":                    { quality: 86 },
   "mistralai/mistral-small-3.1-24b-instruct:free": { quality: 72 },
   "google/gemma-3-27b-it:free":                    { quality: 70 },
-  "google/gemini-2.0-flash-exp:free":              { quality: 68 },
 };
 
 const modelStats = new Map();
@@ -224,25 +223,32 @@ async function refreshModels() {
 }
 
 async function callAI(messages) {
-  if (Date.now() - lastRefresh > 600000) await refreshModels();
+  // Skip model refresh on first call to save time (Netlify has 10s timeout on free tier)
+  if (lastRefresh > 0 && Date.now() - lastRefresh > 600000) await refreshModels();
 
-  for (let i = 0; i < Math.min(rankedModels.length, 8); i++) {
+  // Try up to 3 models (not 8) to stay within timeout
+  for (let i = 0; i < Math.min(rankedModels.length, 3); i++) {
     const model = rankedModels[i];
     const stats = modelStats.get(model) || { s: 0, f: 0, cooldown: 0 };
     if (Date.now() < stats.cooldown) continue;
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout per model
+
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
+        signal: controller.signal,
         headers: {
           "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
           "HTTP-Referer": process.env.URL || "https://singularityconvergence.org",
           "X-Title": "Singularity Convergence",
         },
-        body: JSON.stringify({ model, max_tokens: 1024, messages }),
+        body: JSON.stringify({ model, max_tokens: 800, messages }),
       });
 
+      clearTimeout(timeout);
       const data = await res.json();
 
       if (res.status === 429 || res.status === 402 || data.error) {
