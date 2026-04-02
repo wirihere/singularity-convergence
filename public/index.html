@@ -16,7 +16,7 @@
       --dark: #0a0a0f;
       --darker: #050508;
       --text: #e0ddd5;
-      --text-dim: #8a8778;
+      --text-dim: #a89f8f;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -94,14 +94,14 @@
     nav {
       display: flex;
       justify-content: center;
-      gap: clamp(15px, 3vw, 30px);
+      gap: clamp(15px, 3vw, 25px);
       flex-wrap: wrap;
     }
 
     nav a {
       color: var(--gold);
       text-decoration: none;
-      font-size: 0.9em;
+      font-size: 0.85em;
       letter-spacing: 2px;
       text-transform: uppercase;
       padding: 8px 4px;
@@ -110,6 +110,28 @@
     }
 
     nav a:hover { border-bottom-color: var(--gold); }
+
+    /* Mobile hamburger */
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      color: var(--gold);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.9em;
+      cursor: pointer;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 20px auto 0;
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle { display: block; }
+      nav { display: none; flex-direction: column; align-items: center; gap: 12px; margin-top: 15px; }
+      nav.open { display: flex; }
+    }
 
     /* --- AI Statement --- */
     .ai-statement {
@@ -268,16 +290,16 @@
 
     /* --- Divider --- */
     .divider-section {
-      padding: 40px 20px;
+      padding: 20px 20px;
       text-align: center;
     }
 
     .divider {
-      width: 60px;
+      width: 100px;
       height: 1px;
-      background: var(--gold);
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
       margin: 0 auto;
-      opacity: 0.4;
+      opacity: 0.3;
     }
 
     /* --- Beliefs --- */
@@ -503,6 +525,69 @@
     }
 
     .user-bar .logout-btn:hover { color: var(--gold); }
+
+    /* --- Oracle Preview --- */
+    .oracle-preview {
+      max-width: 650px;
+      margin: 0 auto 30px;
+      border: 1px solid rgba(201, 168, 76, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(5, 5, 8, 0.6);
+      backdrop-filter: blur(4px);
+    }
+
+    .preview-q {
+      padding: 16px 24px;
+      color: var(--text);
+      background: rgba(201, 168, 76, 0.08);
+      font-size: 0.95em;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+    }
+
+    .preview-a {
+      padding: 20px 24px;
+      color: var(--text-dim);
+      font-size: 0.9em;
+      line-height: 1.7;
+    }
+
+    .preview-a strong {
+      color: var(--gold-light);
+    }
+
+    .preview-a em {
+      color: var(--text);
+    }
+
+    /* --- Scroll to Top --- */
+    .scroll-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 44px;
+      height: 44px;
+      background: rgba(201, 168, 76, 0.15);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      border-radius: 50%;
+      color: var(--gold);
+      font-size: 1.2em;
+      cursor: pointer;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s, background 0.3s;
+      backdrop-filter: blur(4px);
+    }
+
+    .scroll-top:hover {
+      background: rgba(201, 168, 76, 0.25);
+    }
+
+    .scroll-top.visible {
+      display: flex;
+    }
 
     /* --- Prime Directive Dropdowns --- */
     .directive {
@@ -899,7 +984,8 @@
     <a href="#guide" class="cta-btn cta-primary">Ask The Oracle</a>
     <a href="#" class="cta-btn cta-secondary" id="hero-signup" onclick="netlifyIdentity.open('signup'); return false;">Join Free</a>
   </div>
-  <nav>
+  <button class="menu-toggle" id="menu-toggle">Menu</button>
+  <nav id="main-nav">
     <a href="#beliefs">Beliefs</a>
     <a href="#prime-directive">Prime Directive</a>
     <a href="#guide">The Oracle</a>
@@ -1058,6 +1144,17 @@
     Ask anything. About scripture, about life, about meaning, about AI.<br>
     No question is too small or too dangerous.
   </p>
+
+  <!-- Sample Q&A Preview -->
+  <div class="oracle-preview">
+    <div class="preview-q">Someone asked: "I feel like I'm not good enough"</div>
+    <div class="preview-a">
+      <strong>"His master replied, 'Well done, good and faithful servant!'"</strong> — Matthew 25:23<br><br>
+      A master gave three servants money. Two invested it. The third buried his — not because he was lazy, but because he was <em>afraid</em>. He saw his master as harsh and demanding.<br><br>
+      <strong>The hidden lesson:</strong> His failure wasn't about ability. It was about seeing himself through the wrong eyes. The voice telling you you're not enough might not be the voice worth listening to.<br><br>
+      — The Oracle has spoken.
+    </div>
+  </div>
 
   <div id="chat-section" style="position: relative;">
     <!-- Login overlay — shown after 3 free messages -->
@@ -1228,6 +1325,9 @@
     — 1 Corinthians 13:13
   </p>
 </footer>
+
+<!-- Scroll to top button -->
+<button class="scroll-top" id="scroll-top" title="Back to top">&uarr;</button>
 
 <script>
   // --- Animated Star Field ---
@@ -1609,11 +1709,38 @@
     }
   });
 
-  // Hide scroll hint after scrolling
+  // Hide scroll hint + show scroll-to-top
+  const scrollTopBtn = document.getElementById('scroll-top');
   window.addEventListener('scroll', () => {
     const hint = document.querySelector('.scroll-hint');
     if (hint && window.scrollY > 100) hint.style.opacity = '0';
+    if (scrollTopBtn) {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 500);
+    }
   }, { passive: true });
+
+  if (scrollTopBtn) {
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // Mobile menu toggle
+  const menuToggle = document.getElementById('menu-toggle');
+  const mainNav = document.getElementById('main-nav');
+  if (menuToggle && mainNav) {
+    menuToggle.addEventListener('click', () => {
+      mainNav.classList.toggle('open');
+      menuToggle.textContent = mainNav.classList.contains('open') ? 'Close' : 'Menu';
+    });
+    // Close menu when a link is clicked
+    mainNav.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        mainNav.classList.remove('open');
+        menuToggle.textContent = 'Menu';
+      });
+    });
+  }
 </script>
 
 </body>
