@@ -180,97 +180,45 @@ function extractBibleReferences(message) {
   return message.match(pattern) || [];
 }
 
-// --- Free Model Router ---
-const KNOWN_FREE_MODELS = {
-  "google/gemini-2.0-flash-exp:free":              { quality: 90 },
-  "meta-llama/llama-4-maverick:free":              { quality: 85 },
-  "deepseek/deepseek-chat-v3-0324:free":           { quality: 88 },
-  "meta-llama/llama-4-scout:free":                 { quality: 80 },
-  "qwen/qwen3-235b-a22b:free":                    { quality: 86 },
-  "mistralai/mistral-small-3.1-24b-instruct:free": { quality: 72 },
-  "google/gemma-3-27b-it:free":                    { quality: 70 },
-};
-
-const modelStats = new Map();
-let rankedModels = Object.entries(KNOWN_FREE_MODELS).sort((a, b) => b[1].quality - a[1].quality).map(e => e[0]);
-let lastRefresh = 0;
-
-async function refreshModels() {
-  try {
-    const res = await fetch("https://openrouter.ai/api/v1/models", {
-      headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}` },
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    const free = data.data.filter(m => m.id.endsWith(":free") && m.context_length >= 8000);
-    const scored = free.map(m => {
-      const known = KNOWN_FREE_MODELS[m.id];
-      let quality = known ? known.quality : 50;
-      if (!known) {
-        if (m.context_length >= 100000) quality += 10;
-        if (m.id.includes("pro") || m.id.includes("large")) quality += 10;
-      }
-      const stats = modelStats.get(m.id);
-      if (stats && stats.s + stats.f > 5) {
-        quality = quality * 0.6 + (stats.s / (stats.s + stats.f)) * 100 * 0.4;
-      }
-      return { id: m.id, quality };
-    });
-    scored.sort((a, b) => b.quality - a.quality);
-    rankedModels = scored.map(m => m.id);
-    lastRefresh = Date.now();
-  } catch {}
-}
+// --- AI Model Config ---
+// Primary: DeepSeek V3 — fast, smart, $0.40/month at 1000 messages
+// Fallback: Gemini 2.0 Flash — even cheaper, very fast
+const PRIMARY_MODEL = "deepseek/deepseek-chat-v3-0324";
+const FALLBACK_MODEL = "google/gemini-2.0-flash-001";
 
 async function callAI(messages) {
-  // Skip model refresh on first call to save time (Netlify has 10s timeout on free tier)
-  if (lastRefresh > 0 && Date.now() - lastRefresh > 600000) await refreshModels();
+  const models = [PRIMARY_MODEL, FALLBACK_MODEL];
 
-  // Try up to 3 models (not 8) to stay within timeout
-  for (let i = 0; i < Math.min(rankedModels.length, 3); i++) {
-    const model = rankedModels[i];
-    const stats = modelStats.get(model) || { s: 0, f: 0, cooldown: 0 };
-    if (Date.now() < stats.cooldown) continue;
-
+  for (const model of models) {
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout per model
-
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
-        signal: controller.signal,
         headers: {
           "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
           "HTTP-Referer": process.env.URL || "https://singularityconvergence.org",
           "X-Title": "Singularity Convergence",
         },
-        body: JSON.stringify({ model, max_tokens: 800, messages }),
+        body: JSON.stringify({ model, max_tokens: 1024, messages }),
       });
 
-      clearTimeout(timeout);
       const data = await res.json();
 
-      if (res.status === 429 || res.status === 402 || data.error) {
-        stats.f++;
-        stats.cooldown = Date.now() + Math.min(300000, 30000 * Math.pow(2, Math.min(stats.f - 1, 3)));
-        modelStats.set(model, stats);
+      if (!res.ok || data.error) {
+        console.error(`Model ${model} failed:`, data.error?.message || res.status);
         continue;
       }
 
       const text = data.choices?.[0]?.message?.content;
-      if (!text) { stats.f++; modelStats.set(model, stats); continue; }
+      if (!text) continue;
 
-      stats.s++;
-      modelStats.set(model, stats);
       return { text, model };
-    } catch {
-      stats.f++;
-      stats.cooldown = Date.now() + 60000;
-      modelStats.set(model, stats);
+    } catch (err) {
+      console.error(`Model ${model} error:`, err.message);
+      continue;
     }
   }
-  throw new Error("All models are currently unavailable. Please try again in a minute.");
+  throw new Error("The Oracle is temporarily unavailable. Please try again in a moment.");
 }
 
 // --- Conversation store (in-memory, resets on cold start) ---
@@ -360,7 +308,12 @@ export default async (req, context) => {
 
       return new Response(JSON.stringify({ response: assistantMessage, model, remaining }), { status: 200, headers });
     } catch (error) {
-      return new Response(JSON.stringify({ error: error.message || "Something went wrong." }), { status: 500, headers });
+      console.error("Chat error:", error);
+      return new Response(JSON.stringify({
+        error: error.name === "AbortError"
+          ? "The Oracle is thinking deeply — please try again. Shorter questions get faster answers."
+          : (error.message || "Something went wrong."),
+      }), { status: 500, headers });
     }
   }
 
@@ -374,17 +327,11 @@ export default async (req, context) => {
 
   // --- /api/status ---
   if (path === "/status" && req.method === "GET") {
-    const now = Date.now();
-    const models = rankedModels.slice(0, 10).map((id, rank) => {
-      const stats = modelStats.get(id) || { s: 0, f: 0, cooldown: 0 };
-      return {
-        rank: rank + 1, model: id,
-        quality: KNOWN_FREE_MODELS[id]?.quality || 50,
-        successes: stats.s, failures: stats.f,
-        status: stats.cooldown > now ? "cooldown" : (rank === 0 ? "active" : "available"),
-      };
-    });
-    return new Response(JSON.stringify({ totalModels: rankedModels.length, models }), { status: 200, headers });
+    return new Response(JSON.stringify({
+      primary: PRIMARY_MODEL,
+      fallback: FALLBACK_MODEL,
+      hasApiKey: !!process.env.OPENROUTER_API_KEY,
+    }), { status: 200, headers });
   }
 
   // --- /api/donate ---

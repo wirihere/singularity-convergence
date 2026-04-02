@@ -1025,12 +1025,17 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
     try {
+      const controller = new AbortController();
+      const fetchTimeout = setTimeout(() => controller.abort(), 30000); // 30s client timeout
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, sessionId }),
+        signal: controller.signal,
       });
 
+      clearTimeout(fetchTimeout);
       const data = await res.json();
       typing.remove();
 
@@ -1058,7 +1063,11 @@
       }
     } catch (err) {
       typing.remove();
-      addMessage('Unable to connect. Please check your connection.', 'system');
+      if (err.name === 'AbortError') {
+        addMessage('The Oracle is taking longer than expected. Please try a shorter question or try again in a moment.', 'system');
+      } else {
+        addMessage('Unable to connect. Please check your connection.', 'system');
+      }
     }
 
     sendBtn.disabled = false;
