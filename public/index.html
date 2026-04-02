@@ -369,6 +369,61 @@
     #send-btn:hover { opacity: 0.85; transform: scale(1.02); }
     #send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
+    /* Chat formatting */
+    .message.assistant p {
+      margin: 0 0 12px 0;
+    }
+
+    .message.assistant p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message.assistant strong {
+      color: var(--gold-light);
+    }
+
+    .message.assistant em {
+      color: var(--text-dim);
+    }
+
+    .chat-verse {
+      border-left: 2px solid var(--gold);
+      padding: 8px 14px;
+      margin: 12px 0;
+      background: rgba(201, 168, 76, 0.04);
+      border-radius: 0 6px 6px 0;
+      font-style: italic;
+      line-height: 1.7;
+    }
+
+    .chat-ref {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.85em;
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    .chat-heading {
+      color: var(--gold);
+      font-size: 1.05em;
+      margin: 16px 0 8px;
+      font-weight: bold;
+    }
+
+    .chat-list-item {
+      display: flex;
+      gap: 8px;
+      margin: 6px 0;
+      line-height: 1.6;
+    }
+
+    .chat-list-num {
+      color: var(--gold);
+      flex-shrink: 0;
+      min-width: 20px;
+    }
+
     .typing-indicator {
       align-self: flex-start;
       color: var(--text-dim);
@@ -1002,10 +1057,41 @@
     chatInput.focus();
   }
 
+  function formatResponse(text) {
+    // Convert markdown-like text to readable HTML
+    let html = text
+      // Escape HTML
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      // Bold: **text** or __text__
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/__(.+?)__/g, '<strong>$1</strong>')
+      // Italic: *text* or _text_
+      .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+      // Scripture references in quotes
+      .replace(/"([^"]+)"\s*[—–-]\s*([\w\d\s]+\d+:\d+[\d\s\-–,]*)/g,
+        '<blockquote class="chat-verse">"$1"<span class="chat-ref">— $2</span></blockquote>')
+      // Numbered lists: 1. text
+      .replace(/^(\d+)\.\s+(.+)$/gm, '<div class="chat-list-item"><span class="chat-list-num">$1.</span> $2</div>')
+      // Bullet points: - text or • text
+      .replace(/^[-•]\s+(.+)$/gm, '<div class="chat-list-item"><span class="chat-list-num">&#x2022;</span> $1</div>')
+      // Headers: ### text
+      .replace(/^###\s+(.+)$/gm, '<div class="chat-heading">$1</div>')
+      // Double newlines = paragraph break
+      .replace(/\n\n+/g, '</p><p>')
+      // Single newlines = line break
+      .replace(/\n/g, '<br>');
+
+    return '<p>' + html + '</p>';
+  }
+
   function addMessage(text, role) {
     const div = document.createElement('div');
     div.className = `message ${role === 'system' ? 'welcome' : role}`;
-    div.textContent = text;
+    if (role === 'assistant') {
+      div.innerHTML = formatResponse(text);
+    } else {
+      div.textContent = text;
+    }
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
