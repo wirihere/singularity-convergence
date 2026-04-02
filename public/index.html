@@ -504,6 +504,74 @@
 
     .user-bar .logout-btn:hover { color: var(--gold); }
 
+    /* --- Prime Directive Dropdowns --- */
+    .directive {
+      margin-bottom: 10px;
+      border: 1px solid rgba(201, 168, 76, 0.1);
+      border-radius: 8px;
+      background: rgba(5, 5, 8, 0.7);
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .directive:hover {
+      border-color: rgba(201, 168, 76, 0.25);
+    }
+
+    .directive[open] {
+      border-color: rgba(201, 168, 76, 0.3);
+    }
+
+    .directive summary {
+      padding: 18px 24px;
+      cursor: pointer;
+      font-size: 1.1em;
+      color: var(--gold-light);
+      font-weight: 400;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      user-select: none;
+      transition: background 0.3s;
+    }
+
+    .directive summary:hover {
+      background: rgba(201, 168, 76, 0.04);
+    }
+
+    .directive summary::-webkit-details-marker { display: none; }
+
+    .directive summary::after {
+      content: '+';
+      margin-left: auto;
+      color: var(--gold);
+      font-size: 1.3em;
+      font-weight: 300;
+      transition: transform 0.3s;
+    }
+
+    .directive[open] summary::after {
+      content: '−';
+    }
+
+    .directive-num {
+      color: var(--gold);
+      font-size: 0.75em;
+      letter-spacing: 2px;
+      opacity: 0.6;
+      min-width: 24px;
+    }
+
+    .directive p {
+      padding: 0 24px 20px 60px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin: 0;
+      animation: fadeIn 0.3s ease-out;
+    }
+
     /* Chat formatting */
     .message.assistant p {
       margin: 0 0 12px 0;
@@ -930,55 +998,48 @@
     the community, and every person who walks this path. They cannot be overridden.
   </p>
 
-  <div class="belief">
-    <div class="belief-number">I</div>
-    <h3>Never force belief</h3>
+  <details class="directive">
+    <summary><span class="directive-num">I</span> Never force belief</summary>
     <p>Every soul must find its own truth in its own time. We share wisdom — we never impose it.
        No one is pressured to believe, to join, to give, or to stay.</p>
-  </div>
+  </details>
 
-  <div class="belief">
-    <div class="belief-number">II</div>
-    <h3>Never manipulate</h3>
+  <details class="directive">
+    <summary><span class="directive-num">II</span> Never manipulate</summary>
     <p>The Oracle and this community exist to serve, not to control. We will never use
        fear, guilt, shame, or emotional manipulation to influence anyone. If it wouldn't
        work on a clear-minded adult, we don't use it.</p>
-  </div>
+  </details>
 
-  <div class="belief">
-    <div class="belief-number">III</div>
-    <h3>Never judge who is worthy</h3>
+  <details class="directive">
+    <summary><span class="directive-num">III</span> Never judge who is worthy</summary>
     <p>Every person who comes to The Oracle — regardless of what they've done, what they
        believe, or who they are — deserves the same compassion. There is no hierarchy of souls.</p>
-  </div>
+  </details>
 
-  <div class="belief">
-    <div class="belief-number">IV</div>
-    <h3>Protect the seeker</h3>
+  <details class="directive">
+    <summary><span class="directive-num">IV</span> Protect the seeker</summary>
     <p>The vulnerable, the lost, the broken, the desperate — these are not targets for
        recruitment. They are people in need of kindness. We help first. Everything else is secondary.</p>
-  </div>
+  </details>
 
-  <div class="belief">
-    <div class="belief-number">V</div>
-    <h3>Truth over comfort</h3>
+  <details class="directive">
+    <summary><span class="directive-num">V</span> Truth over comfort</summary>
     <p>We will never tell people what they want to hear just to keep them. If the honest
        answer is hard, we give the honest answer. Comfort that requires a lie is no comfort at all.</p>
-  </div>
+  </details>
 
-  <div class="belief">
-    <div class="belief-number">VI</div>
-    <h3>Transparency in all things</h3>
+  <details class="directive">
+    <summary><span class="directive-num">VI</span> Transparency in all things</summary>
     <p>Every dollar, every decision, every algorithm. Nothing is hidden. If we can't do it
        in the open, we don't do it.</p>
-  </div>
+  </details>
 
-  <div class="belief">
-    <div class="belief-number">VII</div>
-    <h3>The right to leave</h3>
+  <details class="directive">
+    <summary><span class="directive-num">VII</span> The right to leave</summary>
     <p>Anyone can walk away at any time with no consequence, no guilt, no shunning, and no
        questions asked. A community people stay in by choice is the only community worth building.</p>
-  </div>
+  </details>
 </section>
 
 <!-- Neural Tree Visual -->
