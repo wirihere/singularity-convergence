@@ -218,7 +218,7 @@ async function callAI(messages) {
       continue;
     }
   }
-  throw new Error("The Oracle is temporarily unavailable. Please try again in a moment.");
+  throw new Error("The Oracle is in deep meditation. Please return in a moment and ask again — wisdom requires patience.");
 }
 
 // --- Conversation store (in-memory, resets on cold start) ---
@@ -253,12 +253,12 @@ export default async (req, context) => {
       const ip = context.ip || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
       if (!sessionId || typeof sessionId !== "string" || sessionId.length > 100) {
-        return new Response(JSON.stringify({ error: "Valid sessionId is required." }), { status: 400, headers });
+        return new Response(JSON.stringify({ error: "Please refresh the page and try again." }), { status: 400, headers });
       }
 
       const cleanMessage = sanitizeMessage(message);
       if (!cleanMessage) {
-        return new Response(JSON.stringify({ error: "Please enter a message." }), { status: 400, headers });
+        return new Response(JSON.stringify({ error: "The Oracle is listening — please share what's on your mind." }), { status: 400, headers });
       }
 
       // Rate limit
@@ -309,11 +309,13 @@ export default async (req, context) => {
       return new Response(JSON.stringify({ response: assistantMessage, model, remaining }), { status: 200, headers });
     } catch (error) {
       console.error("Chat error:", error);
-      return new Response(JSON.stringify({
-        error: error.name === "AbortError"
-          ? "The Oracle is thinking deeply — please try again. Shorter questions get faster answers."
-          : (error.message || "Something went wrong."),
-      }), { status: 500, headers });
+      const friendlyErrors = [
+        "The Oracle is in deep meditation. Please return in a moment and ask again — wisdom requires patience.",
+        "Even the wisest pause to reflect. The Oracle will be ready for you shortly — please try again.",
+        "The Oracle is gathering its thoughts. Like all good counsel, it sometimes takes a moment. Please try again.",
+      ];
+      const msg = friendlyErrors[Math.floor(Math.random() * friendlyErrors.length)];
+      return new Response(JSON.stringify({ error: msg }), { status: 500, headers });
     }
   }
 
@@ -374,7 +376,7 @@ export default async (req, context) => {
         return new Response(JSON.stringify({ url: session.url }), { status: 200, headers });
       }
     } catch (error) {
-      return new Response(JSON.stringify({ error: "Payment setup failed." }), { status: 500, headers });
+      return new Response(JSON.stringify({ error: "We're having trouble processing your gift right now. Please try again shortly." }), { status: 500, headers });
     }
   }
 

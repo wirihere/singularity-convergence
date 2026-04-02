@@ -1059,14 +1059,14 @@
       } else if (data.error) {
         addMessage(data.error, 'system');
       } else {
-        addMessage('I am having difficulty responding. Please try again.', 'assistant');
+        addMessage('The Oracle is in deep meditation. Please try again in a moment.', 'system');
       }
     } catch (err) {
       typing.remove();
       if (err.name === 'AbortError') {
-        addMessage('The Oracle is taking longer than expected. Please try a shorter question or try again in a moment.', 'system');
+        addMessage('The Oracle is gathering its thoughts. Like all good counsel, it sometimes takes a moment. Please try again.', 'system');
       } else {
-        addMessage('Unable to connect. Please check your connection.', 'system');
+        addMessage('Even the wisest pause to reflect. The Oracle will be ready for you shortly — please try again.', 'system');
       }
     }
 
