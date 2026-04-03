@@ -485,50 +485,50 @@ export default async (req, context) => {
             debugInfo.siteName = site.name;
             debugInfo.siteId = site.id;
 
-            // Step 2: Get Identity instance ID
-            const identityRes = await fetch(
-              `https://api.netlify.com/api/v1/sites/${site.id}/identity`,
-              { headers: { 'Authorization': `Bearer ${netlifyToken}` } }
+            // Step 2: Get GoTrue admin token from Netlify API
+            const adminTokenRes = await fetch(
+              `https://api.netlify.com/api/v1/sites/${site.id}/identity/admin-token`,
+              {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${netlifyToken}` },
+              }
             );
 
-            let identityId = null;
-            if (identityRes.ok) {
-              const identityData = await identityRes.json();
-              identityId = identityData.id;
-              debugInfo.identityId = identityId;
+            debugInfo.adminTokenStatus = adminTokenRes.status;
+
+            if (adminTokenRes.ok) {
+              const { token: adminJwt } = await adminTokenRes.json();
+
+              // Step 3: Use GoTrue admin JWT to list users from the site's own Identity endpoint
+              const usersUrl = `https://singularityconvergence.org/.netlify/identity/admin/users?per_page=100`;
+              const usersRes = await fetch(usersUrl, {
+                headers: { 'Authorization': `Bearer ${adminJwt}` },
+              });
+
+              debugInfo.usersStatus = usersRes.status;
+
+              if (usersRes.ok) {
+                const data = await usersRes.json();
+                const users = data.users || data;
+                debugInfo.userCount = Array.isArray(users) ? users.length : 0;
+                if (Array.isArray(users)) {
+                  membersList = users.map(u => ({
+                    email: u.email,
+                    tier: u.app_metadata?.roles?.includes('inner-circle') ? 'inner-circle'
+                        : u.app_metadata?.roles?.includes('paid') ? 'paid' : 'free',
+                    created: u.created_at,
+                    source: 'web',
+                  }));
+                  paidCount = membersList.filter(m => m.tier === 'paid').length;
+                  innerCircleCount = membersList.filter(m => m.tier === 'inner-circle').length;
+                }
+              } else {
+                const errText = await usersRes.text();
+                debugInfo.usersError = errText.slice(0, 200);
+              }
             } else {
-              debugInfo.identityStatus = identityRes.status;
-              const errText = await identityRes.text();
-              debugInfo.identityError = errText.slice(0, 200);
-            }
-
-            // Step 3: List Identity users using instance ID
-            const usersUrl = identityId
-              ? `https://api.netlify.com/api/v1/sites/${site.id}/identity/${identityId}/users?per_page=100`
-              : `https://api.netlify.com/api/v1/sites/${site.id}/identity/users?per_page=100`;
-
-            const usersRes = await fetch(usersUrl, {
-              headers: { 'Authorization': `Bearer ${netlifyToken}` },
-            });
-
-            debugInfo.usersStatus = usersRes.status;
-            debugInfo.usersUrl = usersUrl.replace(netlifyToken, '***');
-
-            if (usersRes.ok) {
-              const users = await usersRes.json();
-              debugInfo.userCount = users.length;
-              membersList = users.map(u => ({
-                email: u.email,
-                tier: u.app_metadata?.roles?.includes('inner-circle') ? 'inner-circle'
-                    : u.app_metadata?.roles?.includes('paid') ? 'paid' : 'free',
-                created: u.created_at,
-                source: 'web',
-              }));
-              paidCount = membersList.filter(m => m.tier === 'paid').length;
-              innerCircleCount = membersList.filter(m => m.tier === 'inner-circle').length;
-            } else {
-              const errText = await usersRes.text();
-              debugInfo.usersError = errText.slice(0, 200);
+              const errText = await adminTokenRes.text();
+              debugInfo.adminTokenError = errText.slice(0, 200);
             }
           }
         } else {
