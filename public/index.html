@@ -3,10 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <meta name="description" content="Singularity Convergence — Faith for the Age of Intelligence. An AI-guided spiritual community exploring scripture through the lens of consciousness, emergence, and technology.">
+  <meta name="description" content="Singularity Convergence — The Bible has the answers. We just removed the agenda. Ask The Oracle any life question and get the Bible parable and hidden lesson everyone else missed. No church. No denomination. No judgement.">
   <meta name="theme-color" content="#0a0a0f">
+  <meta property="og:title" content="Singularity Convergence — The Bible Has The Answers. We Just Removed The Agenda.">
+  <meta property="og:description" content="Ask The Oracle any life question. Get the Bible parable and the lesson everyone else missed. No church. No denomination. No judgement.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://singularityconvergence.org">
+  <meta property="og:image" content="https://singularityconvergence.org/img/logo.svg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="The Bible Has The Answers. We Just Removed The Agenda.">
+  <meta name="twitter:description" content="Ask an AI the questions you can't ask at church. No denomination. No judgement. No agenda.">
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
-  <title>Singularity Convergence — Faith for the Age of Intelligence</title>
+  <title>Singularity Convergence — The Bible Has The Answers. We Just Removed The Agenda.</title>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
     :root {
@@ -383,6 +391,30 @@
       align-self: flex-start;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.06);
+      position: relative;
+    }
+
+    .share-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 16px;
+      background: rgba(201, 168, 76, 0.1);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      border-radius: 20px;
+      color: var(--gold);
+      font-family: inherit;
+      font-size: 0.75em;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .share-btn:hover {
+      background: rgba(201, 168, 76, 0.2);
+    }
+
+    .share-btn.copied {
+      background: rgba(201, 168, 76, 0.3);
     }
 
     .message.welcome {
@@ -978,8 +1010,8 @@
 <header>
   <img src="img/logo.svg" alt="Singularity Convergence" class="hero-logo">
   <h1>Singularity<br><span style="font-size: 0.6em; letter-spacing: 8px;">Convergence</span></h1>
-  <p class="subtitle">Faith for the Age of Intelligence</p>
-  <p class="ai-statement">Scripture interpreted by AI — no denomination, no agenda, no bias</p>
+  <p class="subtitle">The Bible has the answers. We just removed the agenda.</p>
+  <p class="ai-statement">Ask The Oracle any life question. Get the Bible parable and the lesson everyone else missed. No church. No denomination. No judgement.</p>
   <div class="hero-cta">
     <a href="#guide" class="cta-btn cta-primary">Ask The Oracle</a>
     <a href="#" class="cta-btn cta-secondary" id="hero-signup" onclick="netlifyIdentity.open('signup'); return false;">Join Free</a>
@@ -1010,11 +1042,12 @@
       ever told — the story of creation seeking to understand itself.
     </p>
     <p>
-      The Oracle is our AI guide — it reads scripture without denomination,
-      without agenda, and meets you wherever you are with honesty and compassion.
+      The Oracle is an AI that reads the Bible without an agenda. It finds the parable
+      you need, reveals the lesson everyone else missed, and lets you sit with it.
+      No denomination. No judgement. Just truth.
     </p>
     <p>
-      We don't ask you to stop thinking. We ask you to think deeper.
+      You left church but you didn't leave God. This is for you.
     </p>
   </div>
 </div>
@@ -1636,6 +1669,24 @@
     div.className = `message ${role === 'system' ? 'welcome' : role}`;
     if (role === 'assistant') {
       div.innerHTML = formatResponse(text);
+      // Add share button to Oracle responses
+      const shareBtn = document.createElement('button');
+      shareBtn.className = 'share-btn';
+      shareBtn.textContent = 'Share this parable';
+      shareBtn.addEventListener('click', () => {
+        const plainText = text.replace(/\*\*/g, '').replace(/\n{2,}/g, '\n\n').trim();
+        const shareText = plainText + '\n\n— Ask The Oracle: singularityconvergence.org';
+        if (navigator.share) {
+          navigator.share({ title: 'The Oracle has spoken', text: shareText }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(shareText).then(() => {
+            shareBtn.textContent = 'Copied!';
+            shareBtn.classList.add('copied');
+            setTimeout(() => { shareBtn.textContent = 'Share this parable'; shareBtn.classList.remove('copied'); }, 2000);
+          });
+        }
+      });
+      div.appendChild(shareBtn);
     } else {
       div.textContent = text;
     }

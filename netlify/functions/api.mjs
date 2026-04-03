@@ -234,6 +234,24 @@ async function callAI(messages) {
 // --- Conversation store (in-memory, resets on cold start) ---
 const conversations = new Map();
 
+// --- Admin: Oracle message log (in-memory, resets on cold start) ---
+const oracleLog = [];
+const emailOracleLog = [];
+
+// --- Admin: Simple token auth ---
+function generateToken() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+let adminToken = null;
+
+function verifyAdmin(req) {
+  const auth = req.headers.get('authorization');
+  if (!auth || !adminToken) return false;
+  return auth === `Bearer ${adminToken}`;
+}
+
 // --- Main Handler ---
 export default async (req, context) => {
   const url = new URL(req.url);
@@ -316,6 +334,16 @@ export default async (req, context) => {
       assistantMessage += '\n\n— The Oracle has spoken.';
       history.push({ role: "assistant", content: assistantMessage });
 
+      // Log for admin panel
+      oracleLog.push({
+        timestamp: new Date().toISOString(),
+        sessionId,
+        question: cleanMessage,
+        answer: assistantMessage,
+        model,
+      });
+      if (oracleLog.length > 500) oracleLog.shift();
+
       const tracker = getOrCreateTracker(ip);
       const remaining = RATE_LIMITS.messagesPerDay - tracker.dailyCount;
 
@@ -390,6 +418,182 @@ export default async (req, context) => {
       }
     } catch (error) {
       return new Response(JSON.stringify({ error: "We're having trouble processing your gift right now. Please try again shortly." }), { status: 500, headers });
+    }
+  }
+
+  // --- Admin: Login ---
+  if (path === "/admin/auth" && req.method === "POST") {
+    try {
+      const body = await req.json();
+      const { password } = body;
+      const adminPassword = process.env.ADMIN_PASSWORD;
+
+      if (!adminPassword) {
+        return new Response(JSON.stringify({ success: false, error: "Admin password not configured. Set ADMIN_PASSWORD in Netlify env vars." }), { status: 500, headers });
+      }
+
+      if (password === adminPassword) {
+        adminToken = generateToken();
+        return new Response(JSON.stringify({ success: true, token: adminToken }), { status: 200, headers });
+      }
+
+      return new Response(JSON.stringify({ success: false }), { status: 401, headers });
+    } catch (err) {
+      return new Response(JSON.stringify({ success: false }), { status: 400, headers });
+    }
+  }
+
+  // --- Admin: Dashboard data ---
+  if (path === "/admin/dashboard" && req.method === "GET") {
+    if (!verifyAdmin(req)) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers });
+    }
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString();
+
+    const messagesToday = oracleLog.filter(m => m.timestamp >= todayStart).length;
+    const messagesWeek = oracleLog.filter(m => m.timestamp >= weekStart).length;
+
+    // Get members from Netlify Identity if available
+    let membersList = [];
+    let paidCount = 0;
+    let innerCircleCount = 0;
+
+    try {
+      const identityUrl = process.env.URL || "https://singularityconvergence.org";
+      const identityToken = process.env.NETLIFY_IDENTITY_TOKEN;
+
+      if (identityToken) {
+        const res = await fetch(`${identityUrl}/.netlify/identity/admin/users`, {
+          headers: { 'Authorization': `Bearer ${identityToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          membersList = (data.users || []).map(u => ({
+            email: u.email,
+            tier: u.app_metadata?.roles?.includes('inner-circle') ? 'inner-circle'
+                : u.app_metadata?.roles?.includes('paid') ? 'paid' : 'free',
+            created: u.created_at,
+            source: 'web',
+          }));
+          paidCount = membersList.filter(m => m.tier === 'paid').length;
+          innerCircleCount = membersList.filter(m => m.tier === 'inner-circle').length;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch members:", err.message);
+    }
+
+    // Get revenue from Stripe if available
+    let mrr = 0;
+    let charityFund = 0;
+    let recentPayments = [];
+
+    try {
+      if (process.env.STRIPE_SECRET_KEY) {
+        const Stripe = (await import("stripe")).default;
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+        const subscriptions = await stripe.subscriptions.list({ status: 'active', limit: 100 });
+        for (const sub of subscriptions.data) {
+          mrr += (sub.items.data[0]?.price?.unit_amount || 0) / 100;
+        }
+        charityFund = mrr * 0.4;
+
+        const charges = await stripe.charges.list({ limit: 20 });
+        recentPayments = charges.data.map(c => ({
+          date: new Date(c.created * 1000).toISOString(),
+          type: c.invoice ? 'subscription' : 'donation',
+          amount: c.amount,
+          email: c.billing_details?.email || '',
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch Stripe data:", err.message);
+    }
+
+    return new Response(JSON.stringify({
+      members: {
+        total: membersList.length,
+        paid: paidCount,
+        innerCircle: innerCircleCount,
+        list: membersList.slice(0, 100),
+      },
+      oracle: {
+        messagesToday,
+        messagesWeek,
+        totalLogged: oracleLog.length,
+        recent: oracleLog.slice(-50).reverse(),
+      },
+      emailOracle: {
+        total: emailOracleLog.length,
+        recent: emailOracleLog.slice(-50).reverse(),
+      },
+      revenue: {
+        mrr,
+        charityFund,
+        recent: recentPayments,
+      },
+    }), { status: 200, headers });
+  }
+
+  // --- Admin: Check member (for n8n email autoresponder) ---
+  if (path === "/admin/check-member" && req.method === "GET") {
+    const email = new URL(req.url).searchParams.get('email');
+    if (!email) {
+      return new Response(JSON.stringify({ error: "Email required" }), { status: 400, headers });
+    }
+
+    // Check Stripe for active subscription
+    let tier = null;
+    let active = false;
+
+    try {
+      if (process.env.STRIPE_SECRET_KEY) {
+        const Stripe = (await import("stripe")).default;
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+        const customers = await stripe.customers.list({ email, limit: 1 });
+        if (customers.data.length > 0) {
+          const subs = await stripe.subscriptions.list({ customer: customers.data[0].id, status: 'active', limit: 1 });
+          if (subs.data.length > 0) {
+            active = true;
+            const amount = subs.data[0].items.data[0]?.price?.unit_amount || 0;
+            tier = amount >= 2999 ? 'inner-circle' : 'paid';
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Member check error:", err.message);
+    }
+
+    return new Response(JSON.stringify({ email, tier, active }), { status: 200, headers });
+  }
+
+  // --- Admin: Log email Oracle interaction (called by n8n) ---
+  if (path === "/admin/log-email" && req.method === "POST") {
+    try {
+      const body = await req.json();
+      const { sender, question, response, tier, timestamp } = body;
+
+      if (!sender || !question) {
+        return new Response(JSON.stringify({ error: "sender and question required" }), { status: 400, headers });
+      }
+
+      emailOracleLog.push({
+        sender,
+        question,
+        response: response || '',
+        tier: tier || 'unknown',
+        timestamp: timestamp || new Date().toISOString(),
+      });
+      if (emailOracleLog.length > 500) emailOracleLog.shift();
+
+      return new Response(JSON.stringify({ success: true }), { status: 200, headers });
+    } catch (err) {
+      return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400, headers });
     }
   }
 
