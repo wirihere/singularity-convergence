@@ -466,6 +466,7 @@ export default async (req, context) => {
     try {
       const users = await identityAdmin.listUsers();
       membersList = users.map(u => ({
+        id: u.id,
         email: u.email,
         tier: u.app_metadata?.roles?.includes('inner-circle') ? 'inner-circle'
             : u.app_metadata?.roles?.includes('paid') ? 'paid' : 'free',
@@ -535,6 +536,58 @@ export default async (req, context) => {
         recent: recentPayments,
       },
     }), { status: 200, headers });
+  }
+
+  // --- Admin: Remove member ---
+  if (path === "/admin/remove-member" && req.method === "POST") {
+    try {
+      const body = await req.json();
+      const { email, userId, password } = body;
+
+      if (password !== process.env.ADMIN_PASSWORD) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers });
+      }
+
+      if (!email && !userId) {
+        return new Response(JSON.stringify({ error: "Email or userId required" }), { status: 400, headers });
+      }
+
+      let details = [];
+
+      // Remove from Netlify Identity
+      try {
+        if (userId) {
+          await identityAdmin.deleteUser(userId);
+          details.push('Removed from Identity');
+        }
+      } catch (err) {
+        details.push(`Identity: ${err.message}`);
+      }
+
+      // Remove from MailerLite
+      try {
+        const mlKey = process.env.MAILERLITE_API_KEY;
+        if (mlKey && email) {
+          const mlRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${email}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${mlKey}`,
+            },
+          });
+          if (mlRes.ok || mlRes.status === 204) {
+            details.push('Removed from MailerLite');
+          } else {
+            details.push(`MailerLite: ${mlRes.status}`);
+          }
+        }
+      } catch (err) {
+        details.push(`MailerLite: ${err.message}`);
+      }
+
+      return new Response(JSON.stringify({ success: true, details: details.join('. ') }), { status: 200, headers });
+    } catch (err) {
+      return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400, headers });
+    }
   }
 
   // --- Admin: Check member (for n8n email autoresponder) ---

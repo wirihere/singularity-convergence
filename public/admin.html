@@ -341,6 +341,7 @@
           <th>Signed Up</th>
           <th>Messages</th>
           <th>Source</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody id="members-table">
@@ -517,6 +518,7 @@
             <td>${m.created ? new Date(m.created).toLocaleDateString() : '—'}</td>
             <td>${m.messageCount || '—'}</td>
             <td>${m.source || 'web'}</td>
+            <td>${m.source !== 'info' ? `<button onclick="removeMember('${m.email}', '${m.id}')" style="background:#c0392b;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;">Remove</button>` : ''}</td>
           </tr>
         `).join('');
       }
@@ -576,6 +578,26 @@
 
     } catch (err) {
       console.error('Dashboard load error:', err);
+    }
+  }
+
+  async function removeMember(email, userId) {
+    if (!confirm(`Remove ${email}? This will delete them from Identity and MailerLite.`)) return;
+    try {
+      const res = await fetch(`/api/admin/remove-member`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, userId, password: adminToken }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Removed ${email}. ${data.details || ''}`);
+        refreshData();
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      alert('Failed to remove member');
     }
   }
 
