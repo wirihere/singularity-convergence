@@ -456,78 +456,56 @@ export default async (req, context) => {
     const messagesToday = oracleLog.filter(m => m.timestamp >= todayStart).length;
     const messagesWeek = oracleLog.filter(m => m.timestamp >= weekStart).length;
 
-    // Get members from Netlify Identity GoTrue admin API
+    // Get members from Netlify Identity via Netlify API
     let membersList = [];
     let paidCount = 0;
     let innerCircleCount = 0;
 
     try {
-      // The GoTrue admin API uses the site's Identity URL with an admin token
-      // The Identity URL is the site URL + /.netlify/identity
-      const siteUrl = process.env.URL || "https://singularityconvergence.org";
-      const identityUrl = `${siteUrl}/.netlify/identity`;
+      const netlifyToken = process.env.NETLIFY_API_TOKEN;
 
-      // First, get an admin token using the Identity admin endpoint
-      // Netlify provides IDENTITY_TOKEN env var automatically in some setups,
-      // otherwise we use the NETLIFY_API_TOKEN to request one
-      let adminJwt = null;
+      if (netlifyToken) {
+        // Step 1: Find the site ID
+        const sitesRes = await fetch('https://api.netlify.com/api/v1/sites', {
+          headers: { 'Authorization': `Bearer ${netlifyToken}` },
+        });
 
-      // Method 1: Use IDENTITY_ADMIN_TOKEN if set directly
-      if (process.env.IDENTITY_ADMIN_TOKEN) {
-        adminJwt = process.env.IDENTITY_ADMIN_TOKEN;
-      }
+        if (sitesRes.ok) {
+          const sites = await sitesRes.json();
+          // Find our site by custom domain or name
+          const site = sites.find(s =>
+            s.custom_domain === 'singularityconvergence.org' ||
+            s.ssl_url?.includes('singularity') ||
+            s.name?.includes('singularity')
+          );
 
-      // Method 2: Try the Netlify API to get a GoTrue admin token
-      if (!adminJwt && process.env.NETLIFY_API_TOKEN) {
-        try {
-          // Get site ID first
-          const sitesRes = await fetch('https://api.netlify.com/api/v1/sites', {
-            headers: { 'Authorization': `Bearer ${process.env.NETLIFY_API_TOKEN}` },
-          });
-          if (sitesRes.ok) {
-            const sites = await sitesRes.json();
-            const site = sites.find(s => s.custom_domain === 'singularityconvergence.org' || s.default_domain?.includes('singularity'));
-            if (site) {
-              // Get Identity admin token via Netlify API
-              const tokenRes = await fetch(`https://api.netlify.com/api/v1/sites/${site.id}/identity/admin-token`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${process.env.NETLIFY_API_TOKEN}` },
-              });
-              if (tokenRes.ok) {
-                const tokenData = await tokenRes.json();
-                adminJwt = tokenData.token;
-              }
+          if (site) {
+            // Step 2: List Identity users via Netlify admin API
+            const usersRes = await fetch(
+              `https://api.netlify.com/api/v1/sites/${site.id}/identity/users?per_page=100`,
+              { headers: { 'Authorization': `Bearer ${netlifyToken}` } }
+            );
+
+            if (usersRes.ok) {
+              const users = await usersRes.json();
+              membersList = users.map(u => ({
+                email: u.email,
+                tier: u.app_metadata?.roles?.includes('inner-circle') ? 'inner-circle'
+                    : u.app_metadata?.roles?.includes('paid') ? 'paid' : 'free',
+                created: u.created_at,
+                source: 'web',
+              }));
+              paidCount = membersList.filter(m => m.tier === 'paid').length;
+              innerCircleCount = membersList.filter(m => m.tier === 'inner-circle').length;
             }
           }
-        } catch (e) {
-          console.error("Failed to get identity admin token:", e.message);
         }
       }
 
-      // Use the admin JWT to list users
-      if (adminJwt) {
-        const res = await fetch(`${identityUrl}/admin/users?per_page=100`, {
-          headers: { 'Authorization': `Bearer ${adminJwt}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          membersList = (data.users || []).map(u => ({
-            email: u.email,
-            tier: u.app_metadata?.roles?.includes('inner-circle') ? 'inner-circle'
-                : u.app_metadata?.roles?.includes('paid') ? 'paid' : 'free',
-            created: u.created_at,
-            source: 'web',
-          }));
-          paidCount = membersList.filter(m => m.tier === 'paid').length;
-          innerCircleCount = membersList.filter(m => m.tier === 'inner-circle').length;
-        }
-      }
-
-      // Fallback message if we couldn't get members
-      if (membersList.length === 0) {
-        const uniqueUsers = new Set(oracleLog.filter(m => m.sessionId?.startsWith('user_')).map(m => m.sessionId));
+      // Fallback if no token or API didn't work
+      if (membersList.length === 0 && !process.env.NETLIFY_API_TOKEN) {
         membersList = [{
-          email: `${uniqueUsers.size} logged-in users detected in Oracle log (Identity admin API connecting...)`,
+          email: 'Add NETLIFY_API_TOKEN env var to see member list',
           tier: 'free',
           created: new Date().toISOString(),
           source: 'info',
