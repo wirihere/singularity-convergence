@@ -595,6 +595,45 @@ export default async (req, context) => {
     }
   }
 
+  // --- /api/subscribe --- Add email to MailerLite newsletter
+  if (path === "/subscribe" && req.method === "POST") {
+    try {
+      const body = await req.json();
+      const { email, name } = body;
+
+      if (!email) {
+        return new Response(JSON.stringify({ error: "Email required" }), { status: 400, headers });
+      }
+
+      const mlKey = process.env.MAILERLITE_API_KEY;
+      if (!mlKey) {
+        return new Response(JSON.stringify({ error: "Newsletter not configured" }), { status: 500, headers });
+      }
+
+      const mlRes = await fetch('https://connect.mailerlite.com/api/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mlKey}`,
+        },
+        body: JSON.stringify({
+          email,
+          fields: { name: name || '' },
+          groups: [], // can add group IDs later
+        }),
+      });
+
+      if (mlRes.ok) {
+        return new Response(JSON.stringify({ success: true, message: "Subscribed!" }), { status: 200, headers });
+      } else {
+        const err = await mlRes.json();
+        return new Response(JSON.stringify({ error: err.message || "Failed to subscribe" }), { status: mlRes.status, headers });
+      }
+    } catch (err) {
+      return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400, headers });
+    }
+  }
+
   // Debug — show what path was received
   if (path === "/debug" || path === "/") {
     return new Response(JSON.stringify({
