@@ -485,13 +485,34 @@ export default async (req, context) => {
             debugInfo.siteName = site.name;
             debugInfo.siteId = site.id;
 
-            // Step 2: List Identity users
-            const usersRes = await fetch(
-              `https://api.netlify.com/api/v1/sites/${site.id}/identity/users?per_page=100`,
+            // Step 2: Get Identity instance ID
+            const identityRes = await fetch(
+              `https://api.netlify.com/api/v1/sites/${site.id}/identity`,
               { headers: { 'Authorization': `Bearer ${netlifyToken}` } }
             );
 
+            let identityId = null;
+            if (identityRes.ok) {
+              const identityData = await identityRes.json();
+              identityId = identityData.id;
+              debugInfo.identityId = identityId;
+            } else {
+              debugInfo.identityStatus = identityRes.status;
+              const errText = await identityRes.text();
+              debugInfo.identityError = errText.slice(0, 200);
+            }
+
+            // Step 3: List Identity users using instance ID
+            const usersUrl = identityId
+              ? `https://api.netlify.com/api/v1/sites/${site.id}/identity/${identityId}/users?per_page=100`
+              : `https://api.netlify.com/api/v1/sites/${site.id}/identity/users?per_page=100`;
+
+            const usersRes = await fetch(usersUrl, {
+              headers: { 'Authorization': `Bearer ${netlifyToken}` },
+            });
+
             debugInfo.usersStatus = usersRes.status;
+            debugInfo.usersUrl = usersUrl.replace(netlifyToken, '***');
 
             if (usersRes.ok) {
               const users = await usersRes.json();
