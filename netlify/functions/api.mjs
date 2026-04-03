@@ -456,18 +456,22 @@ export default async (req, context) => {
     const messagesToday = oracleLog.filter(m => m.timestamp >= todayStart).length;
     const messagesWeek = oracleLog.filter(m => m.timestamp >= weekStart).length;
 
-    // Get members from Netlify Identity if available
+    // Get members from Netlify Identity admin API
     let membersList = [];
     let paidCount = 0;
     let innerCircleCount = 0;
 
     try {
-      const identityUrl = process.env.URL || "https://singularityconvergence.org";
-      const identityToken = process.env.NETLIFY_IDENTITY_TOKEN;
+      const siteUrl = process.env.URL || "https://singularityconvergence.org";
+      // Use Netlify's internal identity admin endpoint with the site's API token
+      const identityEndpoint = `${siteUrl}/.netlify/identity/admin/users?per_page=100`;
 
-      if (identityToken) {
-        const res = await fetch(`${identityUrl}/.netlify/identity/admin/users`, {
-          headers: { 'Authorization': `Bearer ${identityToken}` },
+      // Try using the NETLIFY_API_TOKEN or the built-in identity context
+      const apiToken = process.env.NETLIFY_API_TOKEN || process.env.IDENTITY_TOKEN;
+
+      if (apiToken) {
+        const res = await fetch(identityEndpoint, {
+          headers: { 'Authorization': `Bearer ${apiToken}` },
         });
         if (res.ok) {
           const data = await res.json();
@@ -481,6 +485,18 @@ export default async (req, context) => {
           paidCount = membersList.filter(m => m.tier === 'paid').length;
           innerCircleCount = membersList.filter(m => m.tier === 'inner-circle').length;
         }
+      }
+
+      // Fallback: if no API token, show tracked sessions as a proxy
+      if (membersList.length === 0) {
+        // Count unique user sessions from the Oracle log
+        const uniqueSessions = new Set(oracleLog.filter(m => m.sessionId?.startsWith('user_')).map(m => m.sessionId));
+        membersList = [{
+          email: '(Identity API not connected — see setup below)',
+          tier: 'free',
+          created: new Date().toISOString(),
+          source: 'info',
+        }];
       }
     } catch (err) {
       console.error("Failed to fetch members:", err.message);
