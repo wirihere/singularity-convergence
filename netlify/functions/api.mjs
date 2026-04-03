@@ -464,6 +464,8 @@ export default async (req, context) => {
     try {
       const netlifyToken = process.env.NETLIFY_API_TOKEN;
 
+      let debugInfo = { hasToken: !!netlifyToken, siteFound: false, usersStatus: null };
+
       if (netlifyToken) {
         // Step 1: Find the site ID
         const sitesRes = await fetch('https://api.netlify.com/api/v1/sites', {
@@ -472,22 +474,28 @@ export default async (req, context) => {
 
         if (sitesRes.ok) {
           const sites = await sitesRes.json();
-          // Find our site by custom domain or name
           const site = sites.find(s =>
             s.custom_domain === 'singularityconvergence.org' ||
             s.ssl_url?.includes('singularity') ||
-            s.name?.includes('singularity')
-          );
+            s.name?.toLowerCase().includes('singularity')
+          ) || sites[0]; // fallback to first site if name doesn't match
 
           if (site) {
-            // Step 2: List Identity users via Netlify admin API
+            debugInfo.siteFound = true;
+            debugInfo.siteName = site.name;
+            debugInfo.siteId = site.id;
+
+            // Step 2: List Identity users
             const usersRes = await fetch(
               `https://api.netlify.com/api/v1/sites/${site.id}/identity/users?per_page=100`,
               { headers: { 'Authorization': `Bearer ${netlifyToken}` } }
             );
 
+            debugInfo.usersStatus = usersRes.status;
+
             if (usersRes.ok) {
               const users = await usersRes.json();
+              debugInfo.userCount = users.length;
               membersList = users.map(u => ({
                 email: u.email,
                 tier: u.app_metadata?.roles?.includes('inner-circle') ? 'inner-circle'
@@ -497,15 +505,23 @@ export default async (req, context) => {
               }));
               paidCount = membersList.filter(m => m.tier === 'paid').length;
               innerCircleCount = membersList.filter(m => m.tier === 'inner-circle').length;
+            } else {
+              const errText = await usersRes.text();
+              debugInfo.usersError = errText.slice(0, 200);
             }
           }
+        } else {
+          debugInfo.sitesStatus = sitesRes.status;
         }
       }
 
-      // Fallback if no token or API didn't work
-      if (membersList.length === 0 && !process.env.NETLIFY_API_TOKEN) {
+      // Fallback with debug info
+      if (membersList.length === 0) {
+        const debugMsg = netlifyToken
+          ? `API debug: site=${debugInfo.siteName || 'not found'}, status=${debugInfo.usersStatus || 'n/a'}, error=${debugInfo.usersError || 'none'}`
+          : 'Add NETLIFY_API_TOKEN env var to see member list';
         membersList = [{
-          email: 'Add NETLIFY_API_TOKEN env var to see member list',
+          email: debugMsg,
           tier: 'free',
           created: new Date().toISOString(),
           source: 'info',
