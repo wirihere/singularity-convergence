@@ -539,7 +539,7 @@ export default async (req, context) => {
       // Fallback with debug info
       if (membersList.length === 0) {
         const debugMsg = netlifyToken
-          ? `API debug: site=${debugInfo.siteName || 'not found'}, status=${debugInfo.usersStatus || 'n/a'}, error=${debugInfo.usersError || 'none'}`
+          ? `API debug: site=${debugInfo.siteName || 'not found'}, tokenStatus=${debugInfo.adminTokenStatus || 'n/a'}, tokenErr=${debugInfo.adminTokenError || 'none'}, usersStatus=${debugInfo.usersStatus || 'n/a'}, usersErr=${debugInfo.usersError || 'none'}`
           : 'Add NETLIFY_API_TOKEN env var to see member list';
         membersList = [{
           email: debugMsg,
