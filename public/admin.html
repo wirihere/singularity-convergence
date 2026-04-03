@@ -592,7 +592,7 @@
       const data = await res.json();
       if (res.ok) {
         alert(`Removed ${email}. ${data.details || ''}`);
-        refreshData();
+        setTimeout(() => refreshData(), 2000);
       } else {
         alert(`Error: ${data.error}`);
       }
