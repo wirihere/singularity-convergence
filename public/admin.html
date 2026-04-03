@@ -514,7 +514,7 @@
           <tr>
             <td>${m.email}</td>
             <td><span class="tier-badge tier-${m.tier}">${m.tier}</span></td>
-            <td>${new Date(m.created).toLocaleDateString()}</td>
+            <td>${m.created ? new Date(m.created).toLocaleDateString() : '—'}</td>
             <td>${m.messageCount || '—'}</td>
             <td>${m.source || 'web'}</td>
           </tr>

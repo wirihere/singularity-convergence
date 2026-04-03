@@ -469,7 +469,7 @@ export default async (req, context) => {
         email: u.email,
         tier: u.app_metadata?.roles?.includes('inner-circle') ? 'inner-circle'
             : u.app_metadata?.roles?.includes('paid') ? 'paid' : 'free',
-        created: u.created_at,
+        created: u.created_at || u.createdAt || new Date().toISOString(),
         source: 'web',
       }));
       paidCount = membersList.filter(m => m.tier === 'paid').length;
