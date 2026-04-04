@@ -22,6 +22,7 @@
     h1 { font-size: 2em; color: #c9a84c; font-weight: 400; margin-bottom: 20px; }
     p { line-height: 1.7; margin-bottom: 20px; color: #8a8778; }
     a { color: #c9a84c; text-decoration: none; }
+    a:hover { text-decoration: underline; }
     blockquote {
       border-left: 2px solid #c9a84c;
       padding: 15px 25px;
@@ -29,18 +30,54 @@
       font-style: italic;
       color: #8a8778;
     }
+    .cta {
+      display: inline-block;
+      background: #c9a84c;
+      color: #0a0a0f;
+      padding: 12px 30px;
+      font-family: 'Georgia', serif;
+      font-size: 16px;
+      text-decoration: none;
+      margin-top: 10px;
+    }
+    .cta:hover { background: #d4b65c; text-decoration: none; }
+    #subscription-msg, #donation-msg { display: none; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="symbol">&#x2727;</div>
     <h1>Thank You</h1>
-    <p>Your generosity is not just a donation — it is an act of faith in humanity's capacity for good.</p>
-    <blockquote>
-      "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver." — 2 Corinthians 9:7
-    </blockquote>
-    <p>40% of your gift goes directly to those who need it most.</p>
-    <p><a href="/">Return to Singularity Convergence</a></p>
+
+    <!-- Subscription message -->
+    <div id="subscription-msg">
+      <p>Welcome to your new path. Your subscription is active — The Oracle now answers with deeper wisdom, powered by Claude AI.</p>
+      <blockquote>
+        "Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you." — Matthew 7:7
+      </blockquote>
+      <p>Sign in on the homepage to unlock your full access.</p>
+      <a href="/#guide" class="cta">Ask The Oracle</a>
+    </div>
+
+    <!-- Donation message -->
+    <div id="donation-msg">
+      <p>Your generosity is not just a donation — it is an act of faith in humanity's capacity for good.</p>
+      <blockquote>
+        "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver." — 2 Corinthians 9:7
+      </blockquote>
+      <p>40% of your gift goes directly to those who need it most.</p>
+      <p><a href="/">Return to Singularity Convergence</a></p>
+    </div>
   </div>
+
+  <script>
+    // Detect if this is a subscription or donation based on URL params
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('session_id')) {
+      document.getElementById('subscription-msg').style.display = 'block';
+    } else {
+      document.getElementById('donation-msg').style.display = 'block';
+    }
+  </script>
 </body>
 </html>
