@@ -1930,15 +1930,28 @@
         } catch {}
       }
 
-      const endpoint = councilMode ? '/api/council' : '/api/chat';
       const tier = isInnerCircle ? 'inner-circle' : (isPaidMember ? 'paid' : 'free');
 
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: fetchHeaders,
-        body: JSON.stringify({ message, sessionId: getSessionId(), tier }),
-        signal: controller.signal,
-      });
+      let res;
+      if (councilMode) {
+        // Council calls n8n directly (bypasses Netlify 10s function timeout)
+        res = await fetch('https://n8n.srv1178347.hstgr.cloud/webhook/council', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: message }),
+          signal: controller.signal,
+        });
+        const councilData = await res.json();
+        // Normalize response format to match /api/chat
+        res = new Response(JSON.stringify({ response: councilData.council_response, model: 'council' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      } else {
+        res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: fetchHeaders,
+          body: JSON.stringify({ message, sessionId: getSessionId(), tier }),
+          signal: controller.signal,
+        });
+      }
 
       clearTimeout(fetchTimeout);
       const data = await res.json();
