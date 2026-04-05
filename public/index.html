@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZHTQTE9T0E"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZHTQTE9T0E');</script>
   <meta name="description" content="Singularity Convergence — The Bible has the answers. We just removed the agenda. Ask The Oracle any life question and get the Bible parable and hidden lesson everyone else missed. No church. No denomination. No judgement.">
   <meta name="google-site-verification" content="S2DHf9dUetuSBcEkHJLc3JrMAMsbrHlukknlrbQglIo" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
@@ -1730,6 +1733,7 @@
     currentUser = user;
     isPaidMember = user.app_metadata?.roles?.includes('paid') || user.app_metadata?.roles?.includes('inner-circle') || false;
     isInnerCircle = user.app_metadata?.roles?.includes('inner-circle') || false;
+    gtag('event', 'sign_up', { method: 'Google', tier: isInnerCircle ? 'inner-circle' : (isPaidMember ? 'paid' : 'free') });
     showLoggedIn(user);
     if (isInnerCircle) showCouncilToggle();
     loginOverlay.classList.remove('visible');
@@ -1865,6 +1869,7 @@
 
   councilToggleBtn.addEventListener('click', () => {
     councilMode = !councilMode;
+    gtag('event', 'council_toggle', { event_category: 'engagement', council_active: councilMode });
     if (councilMode) {
       councilToggleBtn.textContent = 'Switch to The Oracle';
       councilToggleBtn.style.background = 'var(--gold)';
@@ -1971,6 +1976,7 @@
         }
       } else if (data.response) {
         addMessage(data.response, 'assistant');
+        gtag('event', councilMode ? 'council_message' : 'oracle_message', { event_category: 'engagement' });
         saveChatHistory();
         // Show login prompt for visitors after limit
         if (!currentUser && messageCount >= VISITOR_LIMIT) {
@@ -2083,6 +2089,7 @@
 
   // --- Pricing Checkout ---
   async function startCheckout(tier) {
+    gtag('event', 'begin_checkout', { event_category: 'conversion', tier: tier });
     const user = netlifyIdentity.currentUser();
     if (!user) {
       // Not logged in — trigger login first, then retry
