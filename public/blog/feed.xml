@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Oracle Insights — Singularity Convergence</title>
+    <description>The Oracle speaks on the questions you're really asking. Bible parables, hidden lessons, and the truth most churches skip.</description>
+    <link>https://singularityconvergence.org/blog/</link>
+    <atom:link href="https://singularityconvergence.org/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <language>en</language>
+    <lastBuildDate>Mon, 07 Apr 2026 12:00:00 +0000</lastBuildDate>
+    <image>
+      <url>https://singularityconvergence.org/img/logo.svg</url>
+      <title>Oracle Insights — Singularity Convergence</title>
+      <link>https://singularityconvergence.org/blog/</link>
+    </image>
+
+    <item>
+      <title>What Does the Bible Say About Anxiety?</title>
+      <description>Churches say "pray harder." The Bible says something completely different. The Oracle breaks down Philippians 4:6 and reveals the hidden lesson about anxiety that most people never hear from a pulpit.</description>
+      <link>https://singularityconvergence.org/blog/what-does-the-bible-say-about-anxiety.html</link>
+      <guid isPermaLink="true">https://singularityconvergence.org/blog/what-does-the-bible-say-about-anxiety.html</guid>
+      <pubDate>Mon, 07 Apr 2026 12:00:00 +0000</pubDate>
+    </item>
+
+  </channel>
+</rss>
