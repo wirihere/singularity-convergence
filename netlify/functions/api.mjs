@@ -193,10 +193,10 @@ function extractBibleReferences(message) {
 }
 
 // --- AI Model Config ---
-// Primary: Gemini 2.0 Flash — fast, reliable, always English, ~$0.20/month
-// Fallback: DeepSeek V3 — smart but can sometimes output Chinese
-const PRIMARY_MODEL = "google/gemini-2.0-flash-001";
-const FALLBACK_MODEL = "deepseek/deepseek-chat-v3-0324";
+// Primary: DeepSeek V3 — smart, fast, great at following complex system prompts
+// Fallback: Gemini 2.0 Flash — reliable fallback, always English
+const PRIMARY_MODEL = "deepseek/deepseek-chat";
+const FALLBACK_MODEL = "google/gemini-2.0-flash-001";
 
 const PAID_PRIMARY_MODEL = "anthropic/claude-sonnet-4";
 const PAID_FALLBACK_MODEL = "google/gemini-2.0-flash-001";
