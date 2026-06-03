@@ -6,12 +6,20 @@
     <link>https://singularityconvergence.org/blog/</link>
     <atom:link href="https://singularityconvergence.org/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <language>en</language>
-    <lastBuildDate>Mon, 01 Jun 2026 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 04 Jun 2026 12:00:00 +0000</lastBuildDate>
     <image>
       <url>https://singularityconvergence.org/img/logo.svg</url>
       <title>Oracle Insights — Singularity Convergence</title>
       <link>https://singularityconvergence.org/blog/</link>
     </image>
+
+    <item>
+      <title>Does God Hear My Prayers?</title>
+      <description>You've prayed and nothing changed. The silence feels like an answer. The Oracle reveals what the Bible actually says about unanswered prayer — and the hidden lesson in 1 John 5 that changes everything.</description>
+      <link>https://singularityconvergence.org/blog/does-god-hear-my-prayers.html</link>
+      <guid isPermaLink="true">https://singularityconvergence.org/blog/does-god-hear-my-prayers.html</guid>
+      <pubDate>Thu, 04 Jun 2026 12:00:00 +0000</pubDate>
+    </item>
 
     <item>
       <title>What Does the Bible Say About Anger?</title>

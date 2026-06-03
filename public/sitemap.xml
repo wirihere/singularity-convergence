@@ -32,13 +32,19 @@
   </url>
   <url>
     <loc>https://singularityconvergence.org/blog/</loc>
-    <lastmod>2026-06-01</lastmod>
+    <lastmod>2026-06-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://singularityconvergence.org/blog/can-you-be-spiritual-without-church.html</loc>
     <lastmod>2026-05-27</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://singularityconvergence.org/blog/does-god-hear-my-prayers.html</loc>
+    <lastmod>2026-06-04</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
