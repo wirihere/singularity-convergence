@@ -6,12 +6,20 @@
     <link>https://singularityconvergence.org/blog/</link>
     <atom:link href="https://singularityconvergence.org/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <language>en</language>
-    <lastBuildDate>Thu, 04 Jun 2026 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 13 Jul 2026 12:00:00 +0000</lastBuildDate>
     <image>
       <url>https://singularityconvergence.org/img/logo.svg</url>
       <title>Oracle Insights — Singularity Convergence</title>
       <link>https://singularityconvergence.org/blog/</link>
     </image>
+
+    <item>
+      <title>What Does the Bible Say About Forgiveness?</title>
+      <description>Churches say forgive and forget. The Bible says something completely different about forgiveness. The Oracle reveals the hidden lesson in Matthew 18 that most people miss.</description>
+      <link>https://singularityconvergence.org/blog/what-does-the-bible-say-about-forgiveness.html</link>
+      <guid isPermaLink="true">https://singularityconvergence.org/blog/what-does-the-bible-say-about-forgiveness.html</guid>
+      <pubDate>Mon, 13 Jul 2026 12:00:00 +0000</pubDate>
+    </item>
 
     <item>
       <title>Does God Hear My Prayers?</title>
@@ -35,14 +43,6 @@
       <link>https://singularityconvergence.org/blog/how-to-find-purpose-in-life.html</link>
       <guid isPermaLink="true">https://singularityconvergence.org/blog/how-to-find-purpose-in-life.html</guid>
       <pubDate>Sun, 31 May 2026 12:00:00 +0000</pubDate>
-    </item>
-
-    <item>
-      <title>What Does the Bible Say About Forgiveness?</title>
-      <description>Most people think forgiveness means pretending it didn't hurt. The Bible says something radically different. The Oracle reveals the hidden lesson in Matthew 18 that changes everything.</description>
-      <link>https://singularityconvergence.org/blog/what-does-the-bible-say-about-forgiveness.html</link>
-      <guid isPermaLink="true">https://singularityconvergence.org/blog/what-does-the-bible-say-about-forgiveness.html</guid>
-      <pubDate>Wed, 28 May 2026 12:00:00 +0000</pubDate>
     </item>
 
     <item>
