@@ -6,15 +6,23 @@
     <link>https://singularityconvergence.org/blog/</link>
     <atom:link href="https://singularityconvergence.org/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <language>en</language>
-    <lastBuildDate>Wed, 15 Jul 2026 12:00:00 +0000</lastBuildDate>
-    <image>
-      <url>https://singularityconvergence.org/img/logo.svg</url>
-      <title>Oracle Insights — Singularity Convergence</title>
-      <link>https://singularityconvergence.org/blog/</link>
-    </image>
+    <lastBuildDate>Sun, 19 Jul 2026 12:00:00 +0000</lastBuildDate>
+        <image>
+          <url>https://singularityconvergence.org/img/logo.svg</url>
+          <title>Oracle Insights — Singularity Convergence</title>
+          <link>https://singularityconvergence.org/blog/</link>
+        </image>
 
-    <item>
-      <title>What Does the Bible Say About Love?</title>
+        <item>
+          <title>The Tower of Babel and AI</title>
+          <description>Humanity tried to build a tower to heaven once before. The Oracle reveals what the Tower of Babel teaches us about AI, the singularity, and the difference between building up and reaching up.</description>
+          <link>https://singularityconvergence.org/blog/the-tower-of-babel-and-ai.html</link>
+          <guid isPermaLink="true">https://singularityconvergence.org/blog/the-tower-of-babel-and-ai.html</guid>
+          <pubDate>Sun, 19 Jul 2026 12:00:00 +0000</pubDate>
+        </item>
+
+        <item>
+          <title>What Does the Bible Say About Love?</title>
       <description>Everyone quotes 1 Corinthians 13 at weddings. Nobody reads what comes right before it. The Oracle reveals the hidden lesson about love that most people miss.</description>
       <link>https://singularityconvergence.org/blog/what-does-the-bible-say-about-love.html</link>
       <guid isPermaLink="true">https://singularityconvergence.org/blog/what-does-the-bible-say-about-love.html</guid>
