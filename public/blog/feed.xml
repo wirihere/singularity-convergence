@@ -6,12 +6,20 @@
     <link>https://singularityconvergence.org/blog/</link>
     <atom:link href="https://singularityconvergence.org/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <language>en</language>
-    <lastBuildDate>Sun, 19 Jul 2026 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 24 Jul 2026 12:00:00 +0000</lastBuildDate>
         <image>
           <url>https://singularityconvergence.org/img/logo.svg</url>
           <title>Oracle Insights — Singularity Convergence</title>
           <link>https://singularityconvergence.org/blog/</link>
         </image>
+
+        <item>
+          <title>What Happens After Death According to the Bible</title>
+          <description>Everyone has an opinion about what happens after you die. The Oracle reveals what the Bible actually says — and the hidden lesson in Jesus's own words that most people miss.</description>
+          <link>https://singularityconvergence.org/blog/what-happens-after-death-according-to-the-bible.html</link>
+          <guid isPermaLink="true">https://singularityconvergence.org/blog/what-happens-after-death-according-to-the-bible.html</guid>
+          <pubDate>Fri, 24 Jul 2026 12:00:00 +0000</pubDate>
+        </item>
 
         <item>
           <title>The Tower of Babel and AI</title>
