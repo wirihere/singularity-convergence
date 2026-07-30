@@ -32,76 +32,82 @@
   </url>
   <url>
       <loc>https://singularityconvergence.org/blog/</loc>
-      <lastmod>2026-07-28</lastmod>
+      <lastmod>2026-07-31</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
-  <url>
-    <loc>https://singularityconvergence.org/blog/what-happens-after-death-according-to-the-bible.html</loc>
-    <lastmod>2026-07-24</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://singularityconvergence.org/blog/can-you-be-spiritual-without-church.html</loc>
-    <lastmod>2026-05-27</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-love.html</loc>
-    <lastmod>2026-07-15</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://singularityconvergence.org/blog/does-god-hear-my-prayers.html</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://singularityconvergence.org/blog/how-to-find-purpose-in-life.html</loc>
-    <lastmod>2026-05-31</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-      <loc>https://singularityconvergence.org/blog/is-it-a-sin-to-doubt-god.html</loc>
-      <lastmod>2026-04-07</lastmod>
+    <url>
+      <loc>https://singularityconvergence.org/blog/what-happens-after-death-according-to-the-bible.html</loc>
+      <lastmod>2026-07-24</lastmod>
       <changefreq>yearly</changefreq>
       <priority>0.6</priority>
     </url>
     <url>
-      <loc>https://singularityconvergence.org/blog/the-tower-of-babel-and-ai.html</loc>
-      <lastmod>2026-07-19</lastmod>
+      <loc>https://singularityconvergence.org/blog/can-you-be-spiritual-without-church.html</loc>
+      <lastmod>2026-05-27</lastmod>
       <changefreq>yearly</changefreq>
       <priority>0.6</priority>
     </url>
     <url>
+      <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-love.html</loc>
+      <lastmod>2026-07-15</lastmod>
+      <changefreq>yearly</changefreq>
+      <priority>0.6</priority>
+    </url>
+    <url>
+      <loc>https://singularityconvergence.org/blog/does-god-hear-my-prayers.html</loc>
+      <lastmod>2026-06-04</lastmod>
+      <changefreq>yearly</changefreq>
+      <priority>0.6</priority>
+    </url>
+    <url>
+      <loc>https://singularityconvergence.org/blog/how-to-find-purpose-in-life.html</loc>
+      <lastmod>2026-05-31</lastmod>
+      <changefreq>yearly</changefreq>
+      <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://singularityconvergence.org/blog/is-it-a-sin-to-doubt-god.html</loc>
+        <lastmod>2026-04-07</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.6</priority>
+      </url>
+      <url>
+        <loc>https://singularityconvergence.org/blog/the-tower-of-babel-and-ai.html</loc>
+        <lastmod>2026-07-19</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.6</priority>
+      </url>
+      <url>
       <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-anger.html</loc>
       <lastmod>2026-06-01</lastmod>
       <changefreq>yearly</changefreq>
       <priority>0.6</priority>
     </url>
-  <url>
-    <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-anxiety.html</loc>
-    <lastmod>2026-04-07</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-depression.html</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-forgiveness.html</loc>
-    <lastmod>2026-07-13</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
+    <url>
+      <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-anxiety.html</loc>
+      <lastmod>2026-04-07</lastmod>
+      <changefreq>yearly</changefreq>
+      <priority>0.6</priority>
+    </url>
+    <url>
+      <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-depression.html</loc>
+      <lastmod>2026-07-28</lastmod>
+      <changefreq>yearly</changefreq>
+      <priority>0.6</priority>
+    </url>
+    <url>
+      <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-fear.html</loc>
+      <lastmod>2026-07-31</lastmod>
+      <changefreq>yearly</changefreq>
+      <priority>0.6</priority>
+    </url>
+    <url>
+      <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-forgiveness.html</loc>
+      <lastmod>2026-07-13</lastmod>
+      <changefreq>yearly</changefreq>
+      <priority>0.6</priority>
+    </url>
   <url>
     <loc>https://singularityconvergence.org/blog/what-does-the-bible-say-about-hell.html</loc>
     <lastmod>2026-04-07</lastmod>

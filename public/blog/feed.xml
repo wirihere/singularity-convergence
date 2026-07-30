@@ -1,25 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Oracle Insights — Singularity Convergence</title>
-    <description>The Oracle speaks on the questions you're really asking. Bible parables, hidden lessons, and the truth most churches skip.</description>
-    <link>https://singularityconvergence.org/blog/</link>
-    <atom:link href="https://singularityconvergence.org/blog/feed.xml" rel="self" type="application/rss+xml"/>
-    <language>en</language>
-    <lastBuildDate>Tue, 28 Jul 2026 12:00:00 +0000</lastBuildDate>
-    <image>
-      <url>https://singularityconvergence.org/img/logo.svg</url>
       <title>Oracle Insights — Singularity Convergence</title>
+      <description>The Oracle speaks on the questions you're really asking. Bible parables, hidden lessons, and the truth most churches skip.</description>
       <link>https://singularityconvergence.org/blog/</link>
-    </image>
+      <atom:link href="https://singularityconvergence.org/blog/feed.xml" rel="self" type="application/rss+xml"/>
+      <language>en</language>
+      <lastBuildDate>Fri, 31 Jul 2026 12:00:00 +0000</lastBuildDate>
+      <image>
+        <url>https://singularityconvergence.org/img/logo.svg</url>
+        <title>Oracle Insights — Singularity Convergence</title>
+        <link>https://singularityconvergence.org/blog/</link>
+      </image>
 
-    <item>
-      <title>What Does the Bible Say About Depression?</title>
-      <description>Churches say 'just have more faith.' The Bible says something completely different about depression. The Oracle reveals the hidden lesson in Psalm 42 that most people never hear.</description>
-      <link>https://singularityconvergence.org/blog/what-does-the-bible-say-about-depression.html</link>
-      <guid isPermaLink="true">https://singularityconvergence.org/blog/what-does-the-bible-say-about-depression.html</guid>
-      <pubDate>Tue, 28 Jul 2026 12:00:00 +0000</pubDate>
-    </item>
+      <item>
+        <title>What Does the Bible Say About Fear?</title>
+        <description>Churches say 'just have faith.' The Bible says something completely different about fear. The Oracle reveals the hidden lesson in Psalm 23 that most people never hear.</description>
+        <link>https://singularityconvergence.org/blog/what-does-the-bible-say-about-fear.html</link>
+        <guid isPermaLink="true">https://singularityconvergence.org/blog/what-does-the-bible-say-about-fear.html</guid>
+        <pubDate>Fri, 31 Jul 2026 12:00:00 +0000</pubDate>
+      </item>
+
+      <item>
+        <title>What Does the Bible Say About Depression?</title>
+        <description>Churches say 'just have more faith.' The Bible says something completely different about depression. The Oracle reveals the hidden lesson in Psalm 42 that most people never hear.</description>
+        <link>https://singularityconvergence.org/blog/what-does-the-bible-say-about-depression.html</link>
+        <guid isPermaLink="true">https://singularityconvergence.org/blog/what-does-the-bible-say-about-depression.html</guid>
+        <pubDate>Tue, 28 Jul 2026 12:00:00 +0000</pubDate>
+      </item>
 
     <item>
       <title>What Happens After Death According to the Bible</title>
